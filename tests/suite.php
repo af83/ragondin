@@ -6,8 +6,8 @@ require_once('simpletest/web_tester.php');
 require_once($root_path . '/ragondin.php');
 
 // require_once($root_path . '/testcase.php');
-// require_once($root_path . '/request.php');
-// require_once($root_path . '/response.php');
+ require_once($root_path . '/toupti/request.php');
+ require_once($root_path . '/toupti/response.php');
 // require_once($root_path . '/middleware.php');
 
 class RagondinTestSuite extends TestSuite
