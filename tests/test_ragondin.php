@@ -10,7 +10,7 @@ class TestRagondin extends UnitTestCase
     /**
      * A Ragondin should respond with 'welcome' on / using GET.
      */
-    public function testRoutePath()
+    public function testRootRoutePath()
     {
         $this->fouine->ragondin->get('', function($req, $res)
         {
@@ -22,6 +22,34 @@ class TestRagondin extends UnitTestCase
 
         $this->assertEqual($this->fouine->res->body, 'welcome');
         $this->assertEqual($this->fouine->res->status, 200);
+    }
+    public function testRoutePathParams()
+    {
+        $this->fouine->ragondin->get('say/:something', function($req, $res)
+        {
+            $res->body = $req->params['something'];
+            $res->status = 200;
+        });
+            
+        $this->fouine->get('/say/hello');
+
+        $this->assertEqual($this->fouine->res->body, 'hello');
+        $this->assertEqual($this->fouine->res->status, 200);
+    }
+    public function testRoutePathParamsAsArgs()
+    {
+        $this->fouine->ragondin->get('say/:something', function($req, $res)
+        {
+            $res->body = $req->params['something'];
+            $res->status = 200;
+        }, array(':something' => '\d+'));
+            
+        $this->fouine->get('/say/55');
+        $this->assertEqual($this->fouine->res->body, '55');
+        $this->assertEqual($this->fouine->res->status, 200);
+
+        $this->expectException(new RouteNotFound('/say/no_way'));
+        $this->fouine->get('/say/no_way');
     }
 }
 
