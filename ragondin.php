@@ -2,6 +2,8 @@
 
 require('toupti/middleware.php');
 require('toupti/route.php');
+require('toupti/request.php');
+require('toupti/response.php');
 
 Class Ragondin extends MiddlewareStack 
 {
@@ -28,7 +30,9 @@ Class Ragondin extends MiddlewareStack
 Class HttpReqRes extends Middleware {
     function run($req, $res)
     {
-        $this->follow(new Request(), new TouptiResponse());
+        $res = is_null($res) ? new TouptiResponse() : $res;
+        $this->follow(new Request(), $res);
+        $res->send();
     }
 }
 
@@ -44,7 +48,7 @@ Class RagondinRoute extends Middleware {
         // scheme, params, route_path
         if(is_array($find[0]) && isset($find[0]['__callback']) && $find[0]['__callback'] instanceof Closure)
         {
-            $req->params = array_merge($req->get, $req->post, $find[1]);
+            $req->params = array_merge($req->get(), $req->post(), $find[1]);
             $req->path_key = $find[2];
             $find[0]['__callback']($req, $res);
         }
