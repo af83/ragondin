@@ -22,6 +22,7 @@ class TestRagondin extends UnitTestCase
         $this->assertEqual($this->fouine->res->body, 'welcome');
         $this->assertEqual($this->fouine->res->status, 200);
     }
+
     public function testRoutePathParams()
     {
         $this->fouine->ragondin->get('say/:something', function($req, $res) {
@@ -34,6 +35,7 @@ class TestRagondin extends UnitTestCase
         $this->assertEqual($this->fouine->res->body, 'hello');
         $this->assertEqual($this->fouine->res->status, 200);
     }
+
     public function testRoutePathParamsAsArgs()
     {
         $this->fouine->ragondin->get('say/:something', function($req, $res) {
@@ -48,6 +50,20 @@ class TestRagondin extends UnitTestCase
         $this->expectException(new RouteNotFound('/say/no_way'));
         $this->fouine->get('/say/no_way');
     }
+
+    public function testRoutePathParamsAsArgsAndGetParams()
+    {
+        $this->fouine->ragondin->get('say/:something', function($req, $res) {
+            $res->body = $req->params['something'];
+            $res->body .= $req->params['there'];
+            $res->status = 200;
+        });
+
+        $this->fouine->req->get['there'] = ' is a get params';
+        $this->fouine->get('/say/there');
+        $this->assertEqual($this->fouine->res->body, 'there is a get params');
+        $this->assertEqual($this->fouine->res->status, 200);
+    }
 }
 
 Class Fouine {
@@ -56,14 +72,14 @@ Class Fouine {
         $this->ragondin = new Ragondin();
         $s = $this->ragondin->getStack();
         $reqres = new MockReqRes();
-        $this->req = $req->req;
+        $this->req = $reqres->req;
         $this->ragondin->replace($s[0], $reqres);
     }
 
     function get($url)
     {
+        $this->req->original_uri = $url;
         $stack = $this->ragondin->getStack();
-        $stack[0]->req->original_uri = $url;
         $this->res = $stack[0]->res;
         $this->ragondin->run();
     }
