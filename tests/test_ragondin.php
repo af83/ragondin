@@ -1,12 +1,7 @@
 <?php
 
-class TestRagondin extends UnitTestCase
+class TestRagondin extends FouineTestCase
 {
-    function setUp()
-    {
-        $this->fouine = new Fouine();
-    }
-
     /**
      * A Ragondin should respond with 'welcome' on / using GET.
      */
@@ -64,54 +59,18 @@ class TestRagondin extends UnitTestCase
         $this->assertEqual($this->fouine->res->body, 'there is a get params');
         $this->assertEqual($this->fouine->res->status, 200);
     }
-}
 
-Class Fouine {
-    function __construct()
+    public function testRoutePathParamsAsArgsAndPostParams()
     {
-        $this->ragondin = new Ragondin();
-        $s = $this->ragondin->getStack();
-        $reqres = new MockReqRes();
-        $this->req = $reqres->req;
-        $this->ragondin->replace($s[0], $reqres);
-    }
+        $this->fouine->ragondin->get('say/:something', function($req, $res) {
+            $res->body = $req->params['something'];
+            $res->body .= $req->params['there'];
+            $res->status = 200;
+        });
 
-    function get($url)
-    {
-        $this->req->original_uri = $url;
-        $stack = $this->ragondin->getStack();
-        $this->res = $stack[0]->res;
-        $this->ragondin->run();
-    }
-}
-
-Class MockReqRes extends Middleware {
-    function __construct()
-    {
-        $this->req = new RequestMock();
-        $this->res = new TouptiResponse();
-    }
- 
-    function run($req, $res)
-    {
-        $this->follow($this->req, $this->res);
-    }
-}
-
-Class RequestMock {
-    function __construct()
-    {
-        $this->get = array();
-        $this->post = array();
-    }
-    
-    function post()
-    {
-        return $this->post;
-    }
-
-    function get()
-    {
-        return $this->get;
+        $this->fouine->req->get['there'] = ' is a post params';
+        $this->fouine->get('/say/there');
+        $this->assertEqual($this->fouine->res->body, 'there is a post params');
+        $this->assertEqual($this->fouine->res->status, 200);
     }
 }
