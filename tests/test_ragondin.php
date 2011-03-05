@@ -12,8 +12,7 @@ class TestRagondin extends UnitTestCase
      */
     public function testRootRoutePath()
     {
-        $this->fouine->ragondin->get('', function($req, $res)
-        {
+        $this->fouine->ragondin->get('', function($req, $res) {
             $res->body = 'welcome';
             $res->status = 200;
         });
@@ -25,8 +24,7 @@ class TestRagondin extends UnitTestCase
     }
     public function testRoutePathParams()
     {
-        $this->fouine->ragondin->get('say/:something', function($req, $res)
-        {
+        $this->fouine->ragondin->get('say/:something', function($req, $res) {
             $res->body = $req->params['something'];
             $res->status = 200;
         });
@@ -38,8 +36,7 @@ class TestRagondin extends UnitTestCase
     }
     public function testRoutePathParamsAsArgs()
     {
-        $this->fouine->ragondin->get('say/:something', function($req, $res)
-        {
+        $this->fouine->ragondin->get('say/:something', function($req, $res) {
             $res->body = $req->params['something'];
             $res->status = 200;
         }, array(':something' => '\d+'));
@@ -58,7 +55,9 @@ Class Fouine {
     {
         $this->ragondin = new Ragondin();
         $s = $this->ragondin->getStack();
-        $this->ragondin->replace($s[0], new MockReqRes());
+        $reqres = new MockReqRes();
+        $this->req = $req->req;
+        $this->ragondin->replace($s[0], $reqres);
     }
 
     function get($url)
@@ -74,13 +73,9 @@ Class MockReqRes extends Middleware {
     function __construct()
     {
         $this->req = new RequestMock();
-        $this->req->method = 'GET';
         $this->res = new TouptiResponse();
-
-        $this->req->post = array();
-        $this->req->get = array();
     }
-
+ 
     function run($req, $res)
     {
         $this->follow($this->req, $this->res);
@@ -88,4 +83,19 @@ Class MockReqRes extends Middleware {
 }
 
 Class RequestMock {
+    function __construct()
+    {
+        $this->get = array();
+        $this->post = array();
+    }
+    
+    function post()
+    {
+        return $this->post;
+    }
+
+    function get()
+    {
+        return $this->get;
+    }
 }
